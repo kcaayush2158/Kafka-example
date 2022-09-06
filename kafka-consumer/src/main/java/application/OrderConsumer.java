@@ -1,11 +1,10 @@
 package application;
 
-import application.custome.deserializer.OrderDeserializer;
-import application.model.Order;
+import io.confluent.kafka.serializers.KafkaAvroDeserializer;
+import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.serialization.StringDeserializer;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -16,20 +15,24 @@ public class OrderConsumer {
 
             Properties pros = new Properties();
             pros.setProperty("bootstrap.servers","192.168.1.64:9092");
-            pros.setProperty("key.deserializer", StringDeserializer.class.getName());
-            pros.setProperty("value.deserializer", OrderDeserializer.class.getName());
+            pros.setProperty("key.deserializer", KafkaAvroDeserializer.class.getName());
+            pros.setProperty("value.deserializer",KafkaAvroDeserializer.class.getName());
+            pros.setProperty("schema.registry.url","http://localhost:8081");
             pros.setProperty("group.id","OrderGroup");
-            //synchronous way
-            KafkaConsumer<String, Order> consumer = new KafkaConsumer<String, Order>(pros);
-            consumer.subscribe(Collections.singleton("orderCSTopic"));
+//            pros.setProperty("specific.avro.reader","true");
 
-            ConsumerRecords<String,Order> consumerRecords = consumer.poll(Duration.ofSeconds(20));
-            for(ConsumerRecord<String,Order> record :consumerRecords){
+            //synchronous way
+            KafkaConsumer<String, GenericRecord> consumer = new KafkaConsumer<String, GenericRecord>(pros);
+            consumer.subscribe(Collections.singleton("orderAvroGRTopic"));
+
+            ConsumerRecords<String,GenericRecord> consumerRecords = consumer.poll(Duration.ofSeconds(20));
+            for(ConsumerRecord<String,GenericRecord> record :consumerRecords){
                 String consumerName = record.key();
-                Order order= record.value();
-                    System.out.println("Product Name : " + order.getProduct());
-                    System.out.println("Quantity :"+ order.getQuantity());
+                GenericRecord order= record.value();
+                    System.out.println("Product Name : " + order.get("product"));
+                    System.out.println("Quantity :"+ order.get("quantity"));
             }
+
             consumer.close();
 
     }

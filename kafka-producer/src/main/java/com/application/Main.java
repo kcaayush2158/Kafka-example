@@ -1,41 +1,56 @@
 package com.application;
 
-import com.application.callback.OrderCallback;
+import io.confluent.kafka.serializers.KafkaAvroSerializer;
+
+import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
-import com.application.model.Order;
-
+import org.apache.avro.Schema;
+import org.apache.avro.Schema.Parser;
 import java.util.Properties;
-import java.util.concurrent.Future;
 
 public class Main {
     public static void main(String[] args) {
         Properties pros = new Properties();
         pros.setProperty("bootstrap.servers","192.168.1.64:9092");
-        pros.setProperty("key.serializer","org.apache.kafka.common.serialization.StringSerializer");
-        pros.setProperty("value.serializer","com.application.OrderSerializer");
-
+        pros.setProperty("key.serializer", KafkaAvroSerializer.class.getName());
+        pros.setProperty("value.serializer",KafkaAvroSerializer.class.getName());
+        pros.setProperty("schema.registry.url","http://localhost:8081");
         //synchronous way
-        KafkaProducer<String, Order> producer = new KafkaProducer<String, Order>(pros);
-        Order order = new Order();
-        order.setQuantity(10);
-        order.setCustomerName("Aayush");
-        order.setProduct("MAC BOOK PRO");
-//        ProducerRecord<String,Order> record = new ProducerRecord<>("order-topic",order.getCustomerName(),order);
+        KafkaProducer<String, GenericRecord> producer = new KafkaProducer<String,GenericRecord>(pros);
+        Parser parser = new Schema.Parser();
+        Schema schema = parser.parse("{\n" +
+                "    \"name\": \"Order\",\n" +
+                "    \"type\": \"record\",\n" +
+                "    \"namespace\": \"com.application\",\n" +
+                "    \"fields\": [\n" +
+                "        {\n" +
+                "            \"name\": \"customerName\",\n" +
+                "            \"type\": \"string\"\n" +
+                "        },\n" +
+                "        {\n" +
+                "            \"name\": \"product\",\n" +
+                "            \"type\": \"string\"\n" +
+                "        },\n" +
+                "        {\n" +
+                "            \"name\": \"quantity\",\n" +
+                "            \"type\": \"int\"\n" +
+                "        }\n" +
+                "    ]\n" +
+                "}");
 
-        ProducerRecord<String,Order> record = new ProducerRecord<>("orderCSTopic",order.getCustomerName(),order);
-        System.out.println("Sending ...");
+        GenericRecord genericRecord = new GenericData.Record(schema);
+        genericRecord.put("customerName","Aayush");
+        genericRecord.put("product","Mac Book Pro");
+        genericRecord.put("quantity",1)
+        ;
+
+        ProducerRecord<String,GenericRecord> record = new ProducerRecord<String,GenericRecord>("orderAvroGRTopic",genericRecord.get("customerName").toString() ,genericRecord);
 
         try{
-            //synchronous way
-           Future<RecordMetadata> recordMetadataFuture =  producer.send(record);
-           RecordMetadata recordMetadata = recordMetadataFuture.get();
-           System.out.println(recordMetadata.partition());
-           System.out.println(recordMetadata.offset());
-
-            //asynchronous way
-            producer.send(record,new OrderCallback());
+            System.out.println("Sending ...");
+            producer.send(record);
             System.out.println("message sent successfully");
 
         }catch (Exception e){

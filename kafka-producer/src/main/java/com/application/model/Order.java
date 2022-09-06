@@ -28,4 +28,10 @@ public class Order {
     public int getQuantity() {
         return quantity;
     }
+
+    public Order(String customerName, String product, int quantity) {
+        this.customerName = customerName;
+        this.product = product;
+        this.quantity = quantity;
+    }
 }

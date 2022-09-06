@@ -1,9 +1,15 @@
-package application.model;
+package application;
 
 public class Order {
     private String customerName;
     private String product ;
     private int quantity;
+
+    public Order(String customerName, String product, int quantity) {
+        this.customerName = customerName;
+        this.product = product;
+        this.quantity = quantity;
+    }
 
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
