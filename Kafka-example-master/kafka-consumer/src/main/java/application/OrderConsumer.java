@@ -18,6 +18,17 @@ public class OrderConsumer {
             pros.setProperty("value.deserializer", OrderDeserializer.class.getName());
             pros.setProperty("group.id","OrderGroup");
 //        pros.setProperty(ProducerConfig.TRANSACTIONAL_ID_CONFIG,"order-producer-1");
+        pros.setProperty(ConsumerConfig.FETCH_MIN_BYTES_CONFIG,"10241283");
+        pros.setProperty(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG,"200");
+        pros.setProperty(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG,"1000");
+        pros.setProperty(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG,"3000");
+
+        pros.setProperty(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG,"1MB");
+        pros.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,"earliest")  ;
+        pros.setProperty(ConsumerConfig.CLIENT_ID_CONFIG,"OrderConsumer");
+        pros.setProperty(ConsumerConfig.MAX_POLL_RECORDS_CONFIG,"100");
+        pros.setProperty(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG,RoundRobinAssignor.class.getName());
+
             //synchronous way
 
           Map<TopicPartition , OffsetAndMetadata> currentOffsets = new HashMap<>();
