@@ -1,12 +1,21 @@
-package com.application.model;
+package com.application;
 
 public class Order {
     private String customerName;
     private String product ;
     private int quantity;
+    private int partition;
 
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
+    }
+
+    public int getPartition() {
+        return partition;
+    }
+
+    public void setPartition(int partition) {
+        this.partition = partition;
     }
 
     public void setProduct(String product) {
