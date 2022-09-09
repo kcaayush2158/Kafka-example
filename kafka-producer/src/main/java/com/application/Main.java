@@ -30,7 +30,6 @@ public class Main {
         pros.setProperty(ProducerConfig.RETRY_BACKOFF_MS_CONFIG,"400");
         // default size 16 mb
         pros.setProperty(ProducerConfig.BATCH_SIZE_CONFIG,"34532345");
-        pros.setProperty(ProducerConfig.BATCH_SIZE_CONFIG,"34532345");
         //synchronous way
         KafkaProducer<String, Order> producer = new KafkaProducer<String,Order>(pros);
 
