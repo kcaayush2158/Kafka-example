@@ -29,6 +29,7 @@ public class OrderConsumer {
             for(ConsumerRecord<String,GenericRecord> record :consumerRecords){
                 String consumerName = record.key();
                 GenericRecord order= record.value();
+                    System.out.println("Customer Name : " + consumerName);
                     System.out.println("Product Name : " + order.get("product"));
                     System.out.println("Quantity :"+ order.get("quantity"));
             }
